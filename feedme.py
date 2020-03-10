@@ -64,9 +64,21 @@ class FeedMe():
                     author | <str>: Name of author. Defaults to the host name if available.
                     
                     pubDate | <datetime>: date of article
+                    
+                    enclosure | <dict>: a dictionary of 3 elements that describe where to get more
+                    content for the item. Includes 'url':url for content, 'length': len of enclosure, 'type': mimetype
+                    
         """
         for item in items:
             #item is a dict like object
+            enclosure = None
+            if 'enclosure' in item and isinstance(item['enclosure'],dict):
+                enc = item['enclosure']
+                try:
+                    enclosure = Enclosure(enc['url'],enc['length'],enc['type'])
+                except:
+                    pass
+                
             self.items.append(Item(
                 title = item.get('title',"An article"),
                 link = item.get('link',self.link), 
@@ -74,6 +86,7 @@ class FeedMe():
                 author = item.get('author',author_name),
                 guid = Guid(item.get('permalink',self.link)),
                 pubDate = item.get('pubDate',self.lastBuildDate),
+                enclosure = enclosure,
                 )
             )
             
